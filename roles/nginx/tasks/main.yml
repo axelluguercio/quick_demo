@@ -1,0 +1,26 @@
+---
+# instala nginx
+- name: Update apt cache and install Nginx
+  apt:
+    name: nginx
+    state: latest
+    update_cache: yes
+# copia el contenido html al sever document root de nginx
+- name: Copy website files to the server's document root
+  copy:
+    src: "{{ app_root }}"
+    dest: "{{ document_root }}"
+    mode: preserve
+# aplica el template de configuracion de nginx y notica el handler
+- name: Apply Nginx template
+  template:
+    src: "{{ config_path }}"
+    dest: /etc/nginx/sites-available/default
+  notify: Restart Nginx
+# linkea el site available con el enabled y notifica el handler
+- name: Enable new site
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+  notify: Restart Nginx

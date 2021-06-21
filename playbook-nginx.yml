@@ -1,0 +1,40 @@
+---
+- hosts: webservers
+  remote_user: root
+  become: yes 
+  roles:
+    - role: nginx
+      server_name: "{{ ansible_default_ipv4.address }}"
+      document_root: /var/www/html
+      app_root: html
+      config_path: roles/nginx/tasks/files/nginx.conf.j2 
+  tasks:
+   - iptables:
+       flush: yes
+       comment: flush all rules
+   - iptables:
+       chain: INPUT
+       protocol: tcp
+       match: tcp
+       source: 192.168.0.103
+       destination_port: 80
+       jump: ACCEPT
+   - iptables:
+       chain: INPUT
+       protocol: tcp
+       match: tcp
+       source: 192.168.0.103
+       destination_port: 22
+       jump: ACCEPT
+   - iptables:
+       chain: INPUT
+       jump: REJECT
+   - iptables:
+       chain: OUTPUT
+       protocol: tcp
+       match: tcp
+       destination_port: 22
+       jump: ACCEPT
+   - iptables:
+       chain: FORWARD
+       policy: DROP

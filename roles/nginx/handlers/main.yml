@@ -1,0 +1,6 @@
+---
+# Handler para reiniar el demonio de nginx
+- name: Restart Nginx
+  service:
+    name: nginx
+    state: restarted
